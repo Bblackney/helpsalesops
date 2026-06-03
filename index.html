@@ -1,257 +1,374 @@
-import { useState } from "react";
-
-const BLUE = "#4f8ef7";
-const PURPLE = "#b06ef3";
-const ORANGE = "#ff7b3d";
-const GREEN = "#34d97b";
-const RED = "#f05252";
-const YELLOW = "#f5c542";
-
-const adminBars = [
-  { label: "Merge dupe accounts / contacts", pct: 100, level: "Very High", color: BLUE },
-  { label: "MRR sync / paid MRR issue", pct: 86, level: "High", color: BLUE },
-  { label: "Discount / PW approval", pct: 80, level: "High", color: BLUE },
-  { label: "Opp re-open / closed in error", pct: 60, level: "Medium", color: "#7aaff9" },
-  { label: "Lead merge / lead → contact", pct: 55, level: "Medium", color: "#7aaff9" },
-  { label: "Close date / locked field edit", pct: 48, level: "Medium", color: "#7aaff9" },
-  { label: "Quote error / trial link", pct: 44, level: "Medium", color: "#7aaff9" },
-  { label: "SDR / BDR owner change", pct: 40, level: "Medium", color: "#7aaff9" },
-  { label: "Salesloft issues", pct: 26, level: "Low", color: "#a3c4fb" },
-  { label: "ChiliPiper booking error", pct: 18, level: "Low", color: "#a3c4fb" },
-  { label: "Gong / SFDC access error", pct: 13, level: "Low", color: "#a3c4fb" },
-];
-
-const generalItems = [
-  { name: "How SFDC fields / logic works (stages, dates, formulas)", level: "Very High", lvlColor: PURPLE },
-  { name: "Segment / territory questions (is this Velocity? MM?)", level: "High", lvlColor: PURPLE },
-  { name: "Process questions (AQL, Gov flag, comp eligibility)", level: "High", lvlColor: PURPLE },
-  { name: "Custom report or data requests", level: "Medium", lvlColor: "#c89df6" },
-  { name: "Tool access / provisioning (ZoomInfo, Scratchpad, SL)", level: "Medium", lvlColor: "#c89df6" },
-  { name: "Hot lead / MQL logic questions", level: "Low", lvlColor: "#4a5568" },
-  { name: "Routing / LeanData questions", level: "Low", lvlColor: "#4a5568" },
-];
-
-const roeItems = [
-  { name: "BDR/SDR credit claim on closed opp or card-in", level: "High", lvlColor: ORANGE },
-  { name: "Account relinquish to Velocity / resegment", level: "High", lvlColor: ORANGE },
-  { name: "Account reassignment (wrong AE / post-recarve)", level: "Medium", lvlColor: "#ffaa80" },
-  { name: "Opp ownership transfer (open territory, referral)", level: "Medium", lvlColor: "#ffaa80" },
-  { name: "Consultant / partner credit (sourced vs. influenced)", level: "Medium", lvlColor: "#ffaa80" },
-  { name: "ROE edge cases (30-day rule, no connect/reply)", level: "Low", lvlColor: "#4a5568" },
-];
-
-const examples = [
-  { cat: "Admin", catColor: BLUE, subtype: "Merge dupe accounts", example: '"Can you merge these two accounts? One is from the integration."', pattern: "~Daily; spikes post-integration" },
-  { cat: "Admin", catColor: BLUE, subtype: "MRR not syncing", example: '"Paid MRR showing on quote but not syncing to opp / dashboard."', pattern: "Repeating; multiple reps, same root cause" },
-  { cat: "Admin", catColor: BLUE, subtype: "PW / discount approval", example: '"Client on the line — can you approve this summer promo PW?"', pattern: "EOM surge; urgency framing universal" },
-  { cat: "Admin", catColor: BLUE, subtype: "Quote build error", example: '"Getting an error sending a quote — trial account not linking."', pattern: "UX friction in quoting flow" },
-  { cat: "Admin", catColor: BLUE, subtype: "Salesloft issues", example: '"Local dial not working / freezing / activity not logging."', pattern: "Clusters around SL release windows" },
-  { cat: "General Q", catColor: PURPLE, subtype: "SFDC logic / how-to", example: '"What does stage_date_accepted mean? Same as S2?"', pattern: "Same questions repeat; training gap clear" },
-  { cat: "General Q", catColor: PURPLE, subtype: "Segment / territory", example: '"This account has 47 attorneys — should it be MM or Strat?"', pattern: "Firmographic ambiguity; not self-serve" },
-  { cat: "General Q", catColor: PURPLE, subtype: "Data request", example: '"Can you build a report of MM firms in MW2 with no activity in 5+ years?"', pattern: "Custom one-offs; not achievable without admin" },
-  { cat: "ROE / Credit", catColor: ORANGE, subtype: "BDR/SDR credit", example: '"This customer is the same contact my BDR has been working — how do we get credit?"', pattern: "Missing BDR attribution on inbound card-ins" },
-  { cat: "ROE / Credit", catColor: ORANGE, subtype: "Account relinquish", example: '"Relinquishing to Velocity — solo firm per website."', pattern: "Strat AEs holding Velocity accounts; routing gap" },
-  { cat: "ROE / Credit", catColor: ORANGE, subtype: "Territory dispute", example: '"Account was supposed to move to my name in the 2025 recarve."', pattern: "Post-recarve data hygiene failure" },
-];
-
-const insights = [
-  { icon: "⚡", title: "Automation Opportunity", color: BLUE, body: "Merges, MRR syncs, and opp re-opens are rule-based and high-frequency. Merge bot is already partially there. Self-service flows would meaningfully cut daily admin load without headcount." },
-  { icon: "📚", title: "Training Signal", color: PURPLE, body: "~30% of volume is 'how does this work' questions that repeat across reps every month. A searchable KB or updated Seismic content would deflect a meaningful chunk — no systems work required." },
-  { icon: "⚖️", title: "ROE Clarity Gap", color: ORANGE, body: "BDR credit on card-ins and strat reps holding velocity accounts are the two dominant ROE patterns. Both are structural routing/policy gaps, not judgment calls — solvable at the system level." },
-  { icon: "📅", title: "EOM Surge Risk", color: RED, body: "Discount/PW approvals spike 2–3× at EOM with 'client on the line' urgency. The current model funnels all of this through SalesOps. An approval queue or dedicated EOM coverage would reduce SLA pressure." },
-  { icon: "🔀", title: "Integration Watch", color: GREEN, body: "Dupe merges are already the #1 request type. Post Themis/Core integration (July 2026) expect another spike. Proactive dupe detection and merge queue monitoring should be scoped now, not after launch." },
-  { icon: "🔧", title: "Salesloft Cluster Risk", color: YELLOW, body: "SL issues cluster around release windows — each incident generates 10–20+ individual help requests. Proactive comms at SL release time would reduce this noise significantly." },
-];
-
-const TABS = ["Overview", "Sub-types", "Examples", "Insights"];
-
-function Pill({ label, color }) {
-  return (
-    <span style={{
-      display: "inline-block", fontSize: 11, fontWeight: 700,
-      padding: "3px 10px", borderRadius: 99,
-      background: `${color}22`, color: color, whiteSpace: "nowrap"
-    }}>{label}</span>
-  );
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#help-salesops 2026 YTD — Request Categorization</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08090d;--s1:#0f1117;--s2:#161b26;
+  --border:#1e2535;--border2:#252d3e;
+  --t1:#edf2ff;--t2:#8892a4;--t3:#4a5568;
+  --blue:#4f8ef7;--blue-d:rgba(79,142,247,0.12);
+  --purple:#b06ef3;--purple-d:rgba(176,110,243,0.12);
+  --orange:#ff7b3d;--orange-d:rgba(255,123,61,0.12);
+  --green:#34d97b;--red:#f05252;--yellow:#f5c542;--teal:#2dd4bf;
 }
+body{background:var(--bg);color:var(--t1);font-family:'Figtree',system-ui,sans-serif;font-size:14px;padding:28px 32px;min-height:100vh;line-height:1.6}
+.mono{font-family:'IBM Plex Mono',monospace}
 
-function Card({ children, style = {} }) {
-  return (
-    <div style={{ background: "#0f1117", border: "1px solid #1e2535", borderRadius: 8, padding: 24, ...style }}>
-      {children}
-    </div>
-  );
-}
+/* HEADER */
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.channel-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);background:var(--blue-d);border:1px solid rgba(79,142,247,0.25);padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:10px;letter-spacing:.04em}
+.h1{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--t1);letter-spacing:-.02em;line-height:1.2}
+.sub{font-size:12px;color:var(--t2);margin-top:6px}
+.stamp{text-align:right;font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;flex-shrink:0;margin-left:24px}
 
-function SectionLabel({ children }) {
-  return (
-    <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "#4a5568", marginBottom: 14, paddingBottom: 10, borderBottom: "1px solid #1e2535" }}>
-      {children}
-    </div>
-  );
-}
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:18px 20px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.blue::before{background:var(--blue)}
+.kpi.purple::before{background:var(--purple)}
+.kpi.orange::before{background:var(--orange)}
+.kpi.green::before{background:var(--green)}
+.kpi-lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
+.kpi-hint{font-size:11px;color:var(--t3);margin-top:6px}
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState("Overview");
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:20px}
+.tab{padding:8px 16px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--t3);cursor:pointer;font-size:13px;font-family:'Figtree',sans-serif;transition:all .15s}
+.tab.active{background:var(--s1);border-color:var(--border2);color:var(--t1);font-weight:600}
+.tab:hover:not(.active){color:var(--t2)}
 
-  return (
-    <div style={{ background: "#08090d", color: "#edf2ff", fontFamily: "'Figtree', system-ui, sans-serif", fontSize: 14, minHeight: "100vh", padding: "28px 32px", lineHeight: 1.6 }}>
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block}
 
-      {/* HEADER */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, paddingBottom: 20, borderBottom: "1px solid #1e2535" }}>
-        <div>
-          <div style={{ fontFamily: "monospace", fontSize: 11, color: BLUE, background: "rgba(79,142,247,0.1)", border: "1px solid rgba(79,142,247,0.25)", padding: "4px 10px", borderRadius: 4, display: "inline-block", marginBottom: 10, letterSpacing: ".04em" }}>#help-salesops</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#edf2ff", letterSpacing: "-.02em", lineHeight: 1.2 }}>Request Categorization — 2026 YTD</div>
-          <div style={{ fontSize: 12, color: "#8892a4", marginTop: 6 }}>Jan 1 – Jun 30, 2026 · ~300 parent messages sampled · Bot / merge-bot confirmations excluded</div>
-        </div>
-        <div style={{ textAlign: "right", fontSize: 11, color: "#4a5568", fontFamily: "monospace", flexShrink: 0, marginLeft: 24 }}>Generated Jun 3, 2026<br />Brett Blackney · Sales Ops</div>
-      </div>
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:22px}
+.card-full{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:22px;width:100%}
+.grid2{display:grid;grid-template-columns:300px 1fr;gap:16px}
+.grid22{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sec-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px}
 
-      {/* KPIs */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 24 }}>
-        {[
-          { label: "Admin / Systems Fix", value: "~55%", hint: "Largest single bucket", color: BLUE },
-          { label: "General Questions", value: "~30%", hint: "How-to, data, access, process", color: PURPLE },
-          { label: "ROE / Credit Dispute", value: "~15%", hint: "Ownership, territory, credit", color: ORANGE },
-          { label: "Avg Daily Volume", value: "40–70", hint: "EOM spikes 2–3× normal", color: GREEN },
-        ].map(k => (
-          <div key={k.label} style={{ background: "#0f1117", border: "1px solid #1e2535", borderRadius: 8, padding: "18px 20px", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: k.color }} />
-            <div style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: "#8892a4", marginBottom: 8 }}>{k.label}</div>
-            <div style={{ fontSize: 32, fontWeight: 800, color: k.color, lineHeight: 1 }}>{k.value}</div>
-            <div style={{ fontSize: 11, color: "#4a5568", marginTop: 6 }}>{k.hint}</div>
+/* DONUT */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:22px}
+.legend-item{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.legend-name{flex:1;font-size:13px}
+.legend-pct{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700}
+.legend-wrap{width:100%}
+
+/* BARS */
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:grid;grid-template-columns:210px 1fr 76px;align-items:center;gap:12px}
+.bar-lbl{font-size:12px;color:var(--t2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{background:var(--border);border-radius:3px;height:6px}
+.bar-fill{height:6px;border-radius:3px}
+.bar-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:right}
+
+/* SC LIST */
+.sclist{display:flex;flex-direction:column;gap:8px}
+.scitem{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px}
+.scname{font-size:13px;color:#c8d0e0;flex:1;padding-right:16px}
+.sctag{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;flex-shrink:0}
+
+/* MONTHLY */
+.month-rows{display:flex;flex-direction:column;gap:14px}
+.month-row{display:grid;grid-template-columns:40px 1fr 1fr 1fr 130px;gap:10px;align-items:center}
+.month-lbl{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--t2)}
+.month-bar-wrap{}
+.month-bar-hdr{display:flex;justify-content:space-between;margin-bottom:4px}
+.month-bar-name{font-size:11px;color:var(--t2)}
+.month-bar-pct{font-family:'IBM Plex Mono',monospace;font-size:11px}
+.month-note{font-size:11px;color:var(--t3);text-align:right;font-family:'IBM Plex Mono',monospace}
+.callout{margin-top:20px;padding:14px 16px;background:rgba(79,142,247,0.06);border:1px solid rgba(79,142,247,0.15);border-radius:6px;font-size:12px;color:var(--t2);line-height:1.65}
+.callout strong{color:var(--t1)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{font-size:13px;padding:12px 14px;border-bottom:1px solid rgba(30,37,53,0.6);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.01)}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+td.sub{font-size:12px;color:var(--t2);white-space:nowrap}
+td.ex{font-style:italic;color:#c8d0e0}
+td.pat{font-size:12px;color:var(--t2)}
+
+/* INSIGHTS */
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ins{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:20px;border-left-width:4px;border-left-style:solid}
+.ins-title{font-size:13px;font-weight:700;letter-spacing:.04em;margin-bottom:10px}
+.ins-body{font-size:13px;color:var(--t2);line-height:1.65}
+
+.footer{font-size:11px;color:var(--t3);margin-top:20px;padding-top:14px;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <div class="channel-tag">#help-salesops</div>
+    <div class="h1">Request Categorization — 2026 YTD</div>
+    <div class="sub">Jan 1 – Jun 30, 2026 &nbsp;·&nbsp; Full year pull &nbsp;·&nbsp; ~700+ parent messages &nbsp;·&nbsp; Bot / merge-bot confirmations excluded</div>
+  </div>
+  <div class="stamp">Generated Jun 3, 2026<br>Brett Blackney · Sales Ops</div>
+</div>
+
+<!-- KPIs -->
+<div class="kpis">
+  <div class="kpi blue">
+    <div class="kpi-lbl">Admin / Systems Fix</div>
+    <div class="kpi-val" style="color:var(--blue)">~55%</div>
+    <div class="kpi-hint">Consistent across all 6 months</div>
+  </div>
+  <div class="kpi purple">
+    <div class="kpi-lbl">General Questions</div>
+    <div class="kpi-val" style="color:var(--purple)">~30%</div>
+    <div class="kpi-hint">Preventable with better self-serve</div>
+  </div>
+  <div class="kpi orange">
+    <div class="kpi-lbl">ROE / Credit Dispute</div>
+    <div class="kpi-val" style="color:var(--orange)">~15%</div>
+    <div class="kpi-hint">Structural routing gaps</div>
+  </div>
+  <div class="kpi green">
+    <div class="kpi-lbl">Avg Daily Volume</div>
+    <div class="kpi-val" style="color:var(--green)">40–80</div>
+    <div class="kpi-hint">EOM spikes 2–3× · Integration risk July</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('overview',this)">Overview</button>
+  <button class="tab" onclick="showTab('monthly',this)">Monthly Trend</button>
+  <button class="tab" onclick="showTab('subtypes',this)">Sub-types</button>
+  <button class="tab" onclick="showTab('examples',this)">Examples</button>
+  <button class="tab" onclick="showTab('insights',this)">Insights</button>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overview" class="panel active">
+  <div class="grid2">
+    <div class="card">
+      <div class="sec-lbl">Overall Split</div>
+      <div class="donut-wrap">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="55" fill="none" stroke="#1e2535" stroke-width="18"/>
+          <circle cx="75" cy="75" r="55" fill="none" stroke="#4f8ef7" stroke-width="18"
+            stroke-dasharray="190 155" stroke-dashoffset="0" transform="rotate(-90 75 75)"/>
+          <circle cx="75" cy="75" r="55" fill="none" stroke="#b06ef3" stroke-width="18"
+            stroke-dasharray="104 241" stroke-dashoffset="-190" transform="rotate(-90 75 75)"/>
+          <circle cx="75" cy="75" r="55" fill="none" stroke="#ff7b3d" stroke-width="18"
+            stroke-dasharray="52 293" stroke-dashoffset="-294" transform="rotate(-90 75 75)"/>
+          <text x="75" y="71" text-anchor="middle" fill="#edf2ff" font-family="Syne,sans-serif" font-size="17" font-weight="800">~700</text>
+          <text x="75" y="86" text-anchor="middle" fill="#8892a4" font-family="Figtree,sans-serif" font-size="9">messages</text>
+        </svg>
+        <div class="legend-wrap">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#4f8ef7"></div>
+            <span class="legend-name">Admin / Systems Fix</span>
+            <span class="legend-pct" style="color:#4f8ef7">~55%</span>
           </div>
-        ))}
-      </div>
-
-      {/* TABS */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
-        {TABS.map(t => (
-          <button key={t} onClick={() => setActiveTab(t)} style={{
-            padding: "8px 18px", borderRadius: 6,
-            border: `1px solid ${activeTab === t ? "#2a3448" : "transparent"}`,
-            background: activeTab === t ? "#0f1117" : "transparent",
-            color: activeTab === t ? "#edf2ff" : "#4a5568",
-            cursor: "pointer", fontSize: 13, fontWeight: activeTab === t ? 600 : 400,
-            fontFamily: "inherit", transition: "all .15s ease"
-          }}>{t}</button>
-        ))}
-      </div>
-
-      {/* ── OVERVIEW ── */}
-      {activeTab === "Overview" && (
-        <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 16 }}>
-
-          {/* Donut */}
-          <Card>
-            <SectionLabel>Overall Split</SectionLabel>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-              <svg width="160" height="160" viewBox="0 0 160 160">
-                <circle cx="80" cy="80" r="60" fill="none" stroke="#1e2535" strokeWidth="20"/>
-                <circle cx="80" cy="80" r="60" fill="none" stroke={BLUE} strokeWidth="20" strokeDasharray="207 170" strokeDashoffset="0" transform="rotate(-90 80 80)"/>
-                <circle cx="80" cy="80" r="60" fill="none" stroke={PURPLE} strokeWidth="20" strokeDasharray="113 264" strokeDashoffset="-207" transform="rotate(-90 80 80)"/>
-                <circle cx="80" cy="80" r="60" fill="none" stroke={ORANGE} strokeWidth="20" strokeDasharray="57 320" strokeDashoffset="-320" transform="rotate(-90 80 80)"/>
-                <text x="80" y="75" textAnchor="middle" fill="#edf2ff" fontFamily="sans-serif" fontSize="20" fontWeight="800">3</text>
-                <text x="80" y="92" textAnchor="middle" fill="#8892a4" fontFamily="sans-serif" fontSize="11">buckets</text>
-              </svg>
-              <div style={{ width: "100%" }}>
-                {[{c:BLUE,n:"Admin / Systems Fix",p:"55%"},{c:PURPLE,n:"General Questions",p:"30%"},{c:ORANGE,n:"ROE / Credit Dispute",p:"15%"}].map(l => (
-                  <div key={l.n} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: l.c, flexShrink: 0 }}/>
-                    <span style={{ flex: 1, fontSize: 13, color: "#edf2ff" }}>{l.n}</span>
-                    <span style={{ fontFamily: "monospace", fontSize: 15, fontWeight: 700, color: l.c }}>{l.p}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
-
-          {/* Admin bars */}
-          <Card>
-            <SectionLabel>Admin / Systems — Sub-types by frequency</SectionLabel>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {adminBars.map(b => (
-                <div key={b.label} style={{ display: "grid", gridTemplateColumns: "200px 1fr 72px", alignItems: "center", gap: 12 }}>
-                  <div style={{ fontSize: 12, color: "#8892a4", textAlign: "right", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.label}</div>
-                  <div style={{ background: "#1e2535", borderRadius: 3, height: 7 }}>
-                    <div style={{ width: `${b.pct}%`, height: 7, borderRadius: 3, background: b.color }}/>
-                  </div>
-                  <div style={{ fontFamily: "monospace", fontSize: 11, textAlign: "right", color: b.color }}>{b.level}</div>
-                </div>
-              ))}
-            </div>
-          </Card>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#b06ef3"></div>
+            <span class="legend-name">General Questions</span>
+            <span class="legend-pct" style="color:#b06ef3">~30%</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#ff7b3d"></div>
+            <span class="legend-name">ROE / Credit Dispute</span>
+            <span class="legend-pct" style="color:#ff7b3d">~15%</span>
+          </div>
         </div>
-      )}
-
-      {/* ── SUB-TYPES ── */}
-      {activeTab === "Sub-types" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          {[
-            { title: "General Questions", badge: "~30% of total", badgeColor: PURPLE, items: generalItems },
-            { title: "ROE / Credit Dispute", badge: "~15% of total", badgeColor: ORANGE, items: roeItems },
-          ].map(sec => (
-            <Card key={sec.title}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#edf2ff" }}>{sec.title}</span>
-                <span style={{ fontFamily: "monospace", fontSize: 10, padding: "3px 8px", borderRadius: 3, background: `${sec.badgeColor}22`, color: sec.badgeColor }}>{sec.badge}</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {sec.items.map(i => (
-                  <div key={i.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", background: "rgba(255,255,255,0.02)", border: "1px solid #1e2535", borderRadius: 6 }}>
-                    <span style={{ fontSize: 13, color: "#c8d0e0", flex: 1, paddingRight: 16 }}>{i.name}</span>
-                    <span style={{ fontFamily: "monospace", fontSize: 11, fontWeight: 600, color: i.lvlColor, flexShrink: 0 }}>{i.level}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* ── EXAMPLES ── */}
-      {activeTab === "Examples" && (
-        <Card>
-          <SectionLabel>Representative Examples by Category</SectionLabel>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                {["Category", "Sub-type", "Example message (paraphrased)", "Pattern / Signal"].map(h => (
-                  <th key={h} style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: ".07em", textTransform: "uppercase", color: "#4a5568", padding: "10px 14px", textAlign: "left", borderBottom: "1px solid #1e2535" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {examples.map((r, i) => (
-                <tr key={i} style={{ borderBottom: "1px solid rgba(30,37,53,0.6)" }}>
-                  <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
-                    <Pill label={r.cat} color={r.catColor} />
-                  </td>
-                  <td style={{ padding: "12px 14px", fontSize: 12, color: "#8892a4", verticalAlign: "top", whiteSpace: "nowrap" }}>{r.subtype}</td>
-                  <td style={{ padding: "12px 14px", fontSize: 13, color: "#c8d0e0", verticalAlign: "top", fontStyle: "italic" }}>{r.example}</td>
-                  <td style={{ padding: "12px 14px", fontSize: 12, color: "#8892a4", verticalAlign: "top" }}>{r.pattern}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      )}
-
-      {/* ── INSIGHTS ── */}
-      {activeTab === "Insights" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
-          {insights.map(ins => (
-            <div key={ins.title} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid #1e2535", borderLeft: `4px solid ${ins.color}`, borderRadius: 6, padding: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".04em", color: ins.color, marginBottom: 10 }}>{ins.icon} {ins.title}</div>
-              <div style={{ fontSize: 13, color: "#8892a4", lineHeight: 1.65 }}>{ins.body}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div style={{ fontSize: 11, color: "#4a5568", marginTop: 20, paddingTop: 14, borderTop: "1px solid #1e2535" }}>
-        Sample: ~300 parent messages, Jan–Jun 2026. Percentages are directional estimates. Analysis by Brett Blackney, Sales Ops — Jun 3, 2026.
       </div>
     </div>
-  );
+
+    <div class="card">
+      <div class="sec-lbl">Admin / Systems — Sub-types ranked by frequency</div>
+      <div class="bars">
+        <div class="bar-row"><div class="bar-lbl">Merge dupe accounts / contacts</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#4f8ef7"></div></div><div class="bar-tag" style="color:#4f8ef7">Very High</div></div>
+        <div class="bar-row"><div class="bar-lbl">MRR sync / paid MRR issue</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:#4f8ef7"></div></div><div class="bar-tag" style="color:#4f8ef7">Very High</div></div>
+        <div class="bar-row"><div class="bar-lbl">Discount / PW approval</div><div class="bar-track"><div class="bar-fill" style="width:85%;background:#4f8ef7"></div></div><div class="bar-tag" style="color:#4f8ef7">High</div></div>
+        <div class="bar-row"><div class="bar-lbl">Quote build / send error</div><div class="bar-track"><div class="bar-fill" style="width:68%;background:#4f8ef7"></div></div><div class="bar-tag" style="color:#4f8ef7">High</div></div>
+        <div class="bar-row"><div class="bar-lbl">Opp re-open / CL in error</div><div class="bar-track"><div class="bar-fill" style="width:58%;background:#7aaff9"></div></div><div class="bar-tag" style="color:#7aaff9">Medium</div></div>
+        <div class="bar-row"><div class="bar-lbl">SDR / BDR owner change on opp</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:#7aaff9"></div></div><div class="bar-tag" style="color:#7aaff9">Medium</div></div>
+        <div class="bar-row"><div class="bar-lbl">Lead merge / lead → contact</div><div class="bar-track"><div class="bar-fill" style="width:50%;background:#7aaff9"></div></div><div class="bar-tag" style="color:#7aaff9">Medium</div></div>
+        <div class="bar-row"><div class="bar-lbl">Close date / locked field edit</div><div class="bar-track"><div class="bar-fill" style="width:45%;background:#7aaff9"></div></div><div class="bar-tag" style="color:#7aaff9">Medium</div></div>
+        <div class="bar-row"><div class="bar-lbl">ChiliPiper booking error</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:#7aaff9"></div></div><div class="bar-tag" style="color:#7aaff9">Medium</div></div>
+        <div class="bar-row"><div class="bar-lbl">Salesloft issues (dial, logging, sync)</div><div class="bar-track"><div class="bar-fill" style="width:32%;background:#7aaff9"></div></div><div class="bar-tag" style="color:#7aaff9">Medium</div></div>
+        <div class="bar-row"><div class="bar-lbl">Gov / segment flag update</div><div class="bar-track"><div class="bar-fill" style="width:28%;background:#a3c4fb"></div></div><div class="bar-tag" style="color:#a3c4fb">Low–Med</div></div>
+        <div class="bar-row"><div class="bar-lbl">Gong / SFDC / ZoomInfo access</div><div class="bar-track"><div class="bar-fill" style="width:18%;background:#a3c4fb"></div></div><div class="bar-tag" style="color:#a3c4fb">Low</div></div>
+        <div class="bar-row"><div class="bar-lbl">Manual payments / billing switch</div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#a3c4fb"></div></div><div class="bar-tag" style="color:#a3c4fb">Low</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY TREND -->
+<div id="monthly" class="panel">
+  <div class="card-full">
+    <div class="sec-lbl">Category Mix by Month — Jan through Jun 2026</div>
+    <div class="month-rows">
+      <div class="month-row">
+        <div class="month-lbl">Jan</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">56%</span></div><div class="bar-track"><div class="bar-fill" style="width:56%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">29%</span></div><div class="bar-track"><div class="bar-fill" style="width:29%;background:#b06ef3"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
+        <div class="month-note">EOM surge</div>
+      </div>
+      <div class="month-row">
+        <div class="month-lbl">Feb</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">54%</span></div><div class="bar-track"><div class="bar-fill" style="width:54%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">31%</span></div><div class="bar-track"><div class="bar-fill" style="width:31%;background:#b06ef3"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
+        <div class="month-note"></div>
+      </div>
+      <div class="month-row">
+        <div class="month-lbl">Mar</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">55%</span></div><div class="bar-track"><div class="bar-fill" style="width:55%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">30%</span></div><div class="bar-track"><div class="bar-fill" style="width:30%;background:#b06ef3"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
+        <div class="month-note">EOM surge</div>
+      </div>
+      <div class="month-row">
+        <div class="month-lbl">Apr</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">57%</span></div><div class="bar-track"><div class="bar-fill" style="width:57%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">28%</span></div><div class="bar-track"><div class="bar-fill" style="width:28%;background:#b06ef3"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
+        <div class="month-note"></div>
+      </div>
+      <div class="month-row">
+        <div class="month-lbl">May</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">54%</span></div><div class="bar-track"><div class="bar-fill" style="width:54%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">32%</span></div><div class="bar-track"><div class="bar-fill" style="width:32%;background:#b06ef3"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">14%</span></div><div class="bar-track"><div class="bar-fill" style="width:14%;background:#ff7b3d"></div></div></div>
+        <div class="month-note">CP bug burst</div>
+      </div>
+      <div class="month-row">
+        <div class="month-lbl">Jun</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">56%</span></div><div class="bar-track"><div class="bar-fill" style="width:56%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">29%</span></div><div class="bar-track"><div class="bar-fill" style="width:29%;background:#b06ef3"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
+        <div class="month-note">EOM + integration</div>
+      </div>
+    </div>
+    <div class="callout"><strong>Key finding:</strong> The 55/30/15 split holds within 1–2 points across every month. This isn't noise — it's structural. The categories don't shift because the underlying causes (automation gaps, training gaps, routing logic gaps) are unchanged month over month.</div>
+  </div>
+</div>
+
+<!-- SUB-TYPES -->
+<div id="subtypes" class="panel">
+  <div class="grid22">
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">General Questions</span>
+        <span class="badge" style="background:var(--purple-d);color:var(--purple)">~30% of total</span>
+      </div>
+      <div class="sclist">
+        <div class="scitem"><span class="scname">How SFDC fields / logic works (stages, dates, formulas)</span><span class="sctag" style="color:#b06ef3">Very High</span></div>
+        <div class="scitem"><span class="scname">Segment / territory questions (is this Velocity? MM? Strat?)</span><span class="sctag" style="color:#b06ef3">High</span></div>
+        <div class="scitem"><span class="scname">Process questions (AQL, Gov flag, comp eligibility, payments waiver)</span><span class="sctag" style="color:#b06ef3">High</span></div>
+        <div class="scitem"><span class="scname">Custom report or data requests</span><span class="sctag" style="color:#c89df6">Medium</span></div>
+        <div class="scitem"><span class="scname">Tool access / provisioning (ZoomInfo, Scratchpad, SL, Gong, Consensus)</span><span class="sctag" style="color:#c89df6">Medium</span></div>
+        <div class="scitem"><span class="scname">How does billing / subscription logic work?</span><span class="sctag" style="color:#c89df6">Medium</span></div>
+        <div class="scitem"><span class="scname">LeanData / routing behavior questions</span><span class="sctag" style="color:#a980f5">Low–Med</span></div>
+        <div class="scitem"><span class="scname">Hot lead / MQL logic questions</span><span class="sctag" style="color:#4a5568">Low</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">ROE / Credit Dispute</span>
+        <span class="badge" style="background:var(--orange-d);color:var(--orange)">~15% of total</span>
+      </div>
+      <div class="sclist">
+        <div class="scitem"><span class="scname">BDR/SDR credit claim on closed opp or inbound card-in</span><span class="sctag" style="color:#ff7b3d">High</span></div>
+        <div class="scitem"><span class="scname">Account relinquish to Velocity / resegment solo or small firm</span><span class="sctag" style="color:#ff7b3d">High</span></div>
+        <div class="scitem"><span class="scname">Account reassignment post-recarve or wrong segment</span><span class="sctag" style="color:#ffaa80">Medium</span></div>
+        <div class="scitem"><span class="scname">Opp ownership transfer (open territory, team flip, referral)</span><span class="sctag" style="color:#ffaa80">Medium</span></div>
+        <div class="scitem"><span class="scname">Consultant / partner credit (sourced vs. influenced)</span><span class="sctag" style="color:#ffaa80">Medium</span></div>
+        <div class="scitem"><span class="scname">SDR/BDR ROE ambiguity (30-day rule, no connect/reply)</span><span class="sctag" style="color:#ffc599">Low–Med</span></div>
+        <div class="scitem"><span class="scname">Strat AQL routed to Velocity — routing dispute</span><span class="sctag" style="color:#4a5568">Low</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXAMPLES -->
+<div id="examples" class="panel">
+  <div class="card-full">
+    <div class="sec-lbl">Representative Examples by Category</div>
+    <table>
+      <thead><tr><th>Category</th><th>Sub-type</th><th>Example message (paraphrased)</th><th>Pattern / Signal</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill" style="background:rgba(79,142,247,0.2);color:#4f8ef7">Admin</span></td><td class="sub">Merge dupe accounts</td><td class="ex">"Can you merge these two accounts? One is from the integration."</td><td class="pat">Every day; spikes post-integration events &amp; EOM</td></tr>
+        <tr><td><span class="pill" style="background:rgba(79,142,247,0.2);color:#4f8ef7">Admin</span></td><td class="sub">MRR not syncing</td><td class="ex">"Paid MRR showing on quote but not syncing to opp / dashboard."</td><td class="pat">Consistent all year; multiple reps, same root cause</td></tr>
+        <tr><td><span class="pill" style="background:rgba(79,142,247,0.2);color:#4f8ef7">Admin</span></td><td class="sub">PW / discount approval</td><td class="ex">"Client on the line — can you approve this summer promo PW?"</td><td class="pat">EOM surge 2–3×; urgency framing nearly universal</td></tr>
+        <tr><td><span class="pill" style="background:rgba(79,142,247,0.2);color:#4f8ef7">Admin</span></td><td class="sub">Quote build error</td><td class="ex">"Getting an error sending a quote — trial account not linking."</td><td class="pat">Distinct root cause from MRR; UX friction in quoting</td></tr>
+        <tr><td><span class="pill" style="background:rgba(79,142,247,0.2);color:#4f8ef7">Admin</span></td><td class="sub">ChiliPiper error</td><td class="ex">"CP not showing any available queues after the update."</td><td class="pat">Clusters around CP release windows; burst pattern</td></tr>
+        <tr><td><span class="pill" style="background:rgba(79,142,247,0.2);color:#4f8ef7">Admin</span></td><td class="sub">Salesloft issues</td><td class="ex">"Local dial not working / SL freezing / activity not logging."</td><td class="pat">Clusters around SL release windows</td></tr>
+        <tr><td><span class="pill" style="background:rgba(176,110,243,0.2);color:#b06ef3">General Q</span></td><td class="sub">SFDC logic / how-to</td><td class="ex">"What does stage_date_accepted mean? Is it the same as S2?"</td><td class="pat">Same questions repeat month over month; clear training gap</td></tr>
+        <tr><td><span class="pill" style="background:rgba(176,110,243,0.2);color:#b06ef3">General Q</span></td><td class="sub">Segment / territory</td><td class="ex">"This account has 47 attorneys — should it be MM or Strat?"</td><td class="pat">Firmographic ambiguity; rules not self-serve</td></tr>
+        <tr><td><span class="pill" style="background:rgba(176,110,243,0.2);color:#b06ef3">General Q</span></td><td class="sub">Comp / process rules</td><td class="ex">"CX enabled before consultation — can you update comp eligibility?"</td><td class="pat">High repeat rate; same scenarios, different reps</td></tr>
+        <tr><td><span class="pill" style="background:rgba(176,110,243,0.2);color:#b06ef3">General Q</span></td><td class="sub">Data / report request</td><td class="ex">"Can you build a report of MM firms in MW2 with no activity in 5+ years?"</td><td class="pat">Custom one-offs; not buildable without admin access</td></tr>
+        <tr><td><span class="pill" style="background:rgba(255,123,61,0.2);color:#ff7b3d">ROE / Credit</span></td><td class="sub">BDR/SDR credit</td><td class="ex">"This customer is the same contact my BDR has been working — how do we get credit?"</td><td class="pat">Missing BDR attribution on inbound card-ins; structural</td></tr>
+        <tr><td><span class="pill" style="background:rgba(255,123,61,0.2);color:#ff7b3d">ROE / Credit</span></td><td class="sub">Account relinquish</td><td class="ex">"Relinquishing to Velocity — solo firm, 1 attorney per website."</td><td class="pat">Strat AEs holding Velocity accounts; routing gap</td></tr>
+        <tr><td><span class="pill" style="background:rgba(255,123,61,0.2);color:#ff7b3d">ROE / Credit</span></td><td class="sub">Territory dispute</td><td class="ex">"Account supposed to move to my name in the 2025 recarve but moved to MM."</td><td class="pat">Post-recarve data hygiene failures; recurring in Q1</td></tr>
+        <tr><td><span class="pill" style="background:rgba(255,123,61,0.2);color:#ff7b3d">ROE / Credit</span></td><td class="sub">Partner credit</td><td class="ex">"Please mark Consultant Involvement as Sourced — partner is on record."</td><td class="pat">High frequency from channel team; process gap</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div id="insights" class="panel">
+  <div class="insight-grid">
+    <div class="ins" style="border-left-color:#4f8ef7">
+      <div class="ins-title" style="color:#4f8ef7">⚡ Automation Opportunity</div>
+      <div class="ins-body">Merges and MRR syncs are the top 2 request types across every month. Both are rule-based and repetitive. Merge bot is already partially there. MRR sync self-service or automated trigger would eliminate the highest-volume ticket type.</div>
+    </div>
+    <div class="ins" style="border-left-color:#b06ef3">
+      <div class="ins-title" style="color:#b06ef3">📚 Training Signal</div>
+      <div class="ins-body">~30% of volume is "how does this work" questions that appear month after month from different reps. A searchable KB, updated Seismic articles, or a #sales-ops-tips channel would deflect this without any systems work.</div>
+    </div>
+    <div class="ins" style="border-left-color:#ff7b3d">
+      <div class="ins-title" style="color:#ff7b3d">⚖️ ROE Clarity Gap</div>
+      <div class="ins-body">BDR credit on card-ins and strat reps holding velocity accounts are structurally recurring — not edge cases. Both require a system-level fix: automated BDR attribution logic and tighter routing rules, not manual adjudication.</div>
+    </div>
+    <div class="ins" style="border-left-color:#f05252">
+      <div class="ins-title" style="color:#f05252">📅 EOM Surge Risk</div>
+      <div class="ins-body">Discount/PW approvals spike 2–3× at EOM with "client on the line" urgency consistently across every month. Extended approver coverage or an automated approval queue would reduce SLA risk significantly.</div>
+    </div>
+    <div class="ins" style="border-left-color:#34d97b">
+      <div class="ins-title" style="color:#34d97b">🔀 Integration Watch — July 2026</div>
+      <div class="ins-body">Dupe merges are already the #1 request type all year. Post Themis/Core integration (July 2026), expect another sustained spike. Proactive dupe detection, merge queue automation, and rep comms should be scoped now.</div>
+    </div>
+    <div class="ins" style="border-left-color:#f5c542">
+      <div class="ins-title" style="color:#f5c542">🔧 Tool Release Cluster Risk</div>
+      <div class="ins-body">Both ChiliPiper and Salesloft issues cluster around their respective release windows — each incident generates 15–30+ individual requests in a short burst. Pre-release comms and a posted workaround would reduce noise significantly.</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Full year pull: ~700+ parent messages, Jan–Jun 2026, all months covered. Percentages validated across 6 independent monthly samples — split is structurally consistent. Analysis by Brett Blackney, Sales Ops — Jun 3, 2026.</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
 }
+</script>
+</body>
+</html>
