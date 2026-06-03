@@ -126,11 +126,6 @@ td.pat{font-size:13px;color:#a0aab8}
 
 <!-- KPIs -->
 <div class="kpis">
-  <div class="kpi" style="border-top:3px solid var(--teal)">
-    <div class="kpi-lbl">Merge Requests</div>
-    <div class="kpi-val" style="color:var(--teal)">20%</div>
-    <div class="kpi-hint">Actioned via G-Sheet workflow</div>
-  </div>
   <div class="kpi blue">
     <div class="kpi-lbl">Admin / Systems Fix</div>
     <div class="kpi-val" style="color:var(--blue)">35%</div>
@@ -140,6 +135,11 @@ td.pat{font-size:13px;color:#a0aab8}
     <div class="kpi-lbl">General Questions</div>
     <div class="kpi-val" style="color:var(--purple)">30%</div>
     <div class="kpi-hint">Preventable with better self-serve</div>
+  </div>
+  <div class="kpi" style="border-top:3px solid var(--teal)">
+    <div class="kpi-lbl">Merge Requests</div>
+    <div class="kpi-val" style="color:var(--teal)">20%</div>
+    <div class="kpi-hint">Actioned via G-Sheet workflow</div>
   </div>
   <div class="kpi orange">
     <div class="kpi-lbl">ROE / Credit Dispute</div>
@@ -178,11 +178,6 @@ td.pat{font-size:13px;color:#a0aab8}
         </svg>
         <div class="legend-wrap">
           <div class="legend-item">
-            <div class="legend-dot" style="background:#2dd4bf"></div>
-            <span class="legend-name">Merge Requests</span>
-            <span class="legend-pct" style="color:#2dd4bf">20%</span>
-          </div>
-          <div class="legend-item">
             <div class="legend-dot" style="background:#4f8ef7"></div>
             <span class="legend-name">Admin / Systems Fix</span>
             <span class="legend-pct" style="color:#4f8ef7">35%</span>
@@ -191,6 +186,11 @@ td.pat{font-size:13px;color:#a0aab8}
             <div class="legend-dot" style="background:#b06ef3"></div>
             <span class="legend-name">General Questions</span>
             <span class="legend-pct" style="color:#b06ef3">30%</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#2dd4bf"></div>
+            <span class="legend-name">Merge Requests</span>
+            <span class="legend-pct" style="color:#2dd4bf">20%</span>
           </div>
           <div class="legend-item">
             <div class="legend-dot" style="background:#ff7b3d"></div>
@@ -226,72 +226,64 @@ td.pat{font-size:13px;color:#a0aab8}
   <div class="card-full">
     <div class="sec-lbl" style="color:#8fa0b8">Category Mix by Month — Jan through Jun 2026</div>
     <div class="month-rows">
-      <div class="month-row">
+
+      <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:14px">
         <div class="month-lbl">Jan</div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">56%</span></div><div class="bar-track"><div class="bar-fill" style="width:56%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">35%</span></div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#4f8ef7"></div></div></div>
         <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">29%</span></div><div class="bar-track"><div class="bar-fill" style="width:29%;background:#b06ef3"></div></div></div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
-        <div class="month-note">EOM surge</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Merges</span><span class="month-bar-pct" style="color:#2dd4bf">21%</span></div><div class="bar-track"><div class="bar-fill" style="width:21%;background:#2dd4bf"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div><div style="margin-top:4px;font-size:11px;color:#2dd4bf;font-family:'IBM Plex Mono',monospace">⚡ EOM surge</div></div>
       </div>
-      <div class="month-row">
+
+      <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:14px">
         <div class="month-lbl">Feb</div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">54%</span></div><div class="bar-track"><div class="bar-fill" style="width:54%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">34%</span></div><div class="bar-track"><div class="bar-fill" style="width:34%;background:#4f8ef7"></div></div></div>
         <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">31%</span></div><div class="bar-track"><div class="bar-fill" style="width:31%;background:#b06ef3"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Merges</span><span class="month-bar-pct" style="color:#2dd4bf">20%</span></div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#2dd4bf"></div></div></div>
         <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
-        <div class="month-note"></div>
       </div>
-      <div class="month-row">
+
+      <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:14px">
         <div class="month-lbl">Mar</div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">55%</span></div><div class="bar-track"><div class="bar-fill" style="width:55%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">35%</span></div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#4f8ef7"></div></div></div>
         <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">30%</span></div><div class="bar-track"><div class="bar-fill" style="width:30%;background:#b06ef3"></div></div></div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
-        <div class="month-note">EOM surge</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Merges</span><span class="month-bar-pct" style="color:#2dd4bf">20%</span></div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#2dd4bf"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div><div style="margin-top:4px;font-size:11px;color:#2dd4bf;font-family:'IBM Plex Mono',monospace">⚡ EOM surge</div></div>
       </div>
-      <div class="month-row">
+
+      <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:14px">
         <div class="month-lbl">Apr</div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">57%</span></div><div class="bar-track"><div class="bar-fill" style="width:57%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">37%</span></div><div class="bar-track"><div class="bar-fill" style="width:37%;background:#4f8ef7"></div></div></div>
         <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">28%</span></div><div class="bar-track"><div class="bar-fill" style="width:28%;background:#b06ef3"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Merges</span><span class="month-bar-pct" style="color:#2dd4bf">20%</span></div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#2dd4bf"></div></div></div>
         <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
-        <div class="month-note"></div>
       </div>
-      <div class="month-row">
+
+      <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:14px">
         <div class="month-lbl">May</div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">54%</span></div><div class="bar-track"><div class="bar-fill" style="width:54%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">34%</span></div><div class="bar-track"><div class="bar-fill" style="width:34%;background:#4f8ef7"></div></div></div>
         <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">32%</span></div><div class="bar-track"><div class="bar-fill" style="width:32%;background:#b06ef3"></div></div></div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">14%</span></div><div class="bar-track"><div class="bar-fill" style="width:14%;background:#ff7b3d"></div></div></div>
-        <div class="month-note">CP bug burst</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Merges</span><span class="month-bar-pct" style="color:#2dd4bf">20%</span></div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#2dd4bf"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">14%</span></div><div class="bar-track"><div class="bar-fill" style="width:14%;background:#ff7b3d"></div></div><div style="margin-top:4px;font-size:11px;color:#f5c542;font-family:'IBM Plex Mono',monospace">⚠ CP bug burst</div></div>
       </div>
-      <div class="month-row">
+
+      <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:14px">
         <div class="month-lbl">Jun</div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">56%</span></div><div class="bar-track"><div class="bar-fill" style="width:56%;background:#4f8ef7"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Admin</span><span class="month-bar-pct" style="color:#4f8ef7">35%</span></div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#4f8ef7"></div></div></div>
         <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">General Q</span><span class="month-bar-pct" style="color:#b06ef3">29%</span></div><div class="bar-track"><div class="bar-fill" style="width:29%;background:#b06ef3"></div></div></div>
-        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div></div>
-        <div class="month-note">EOM + integration</div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">Merges</span><span class="month-bar-pct" style="color:#2dd4bf">21%</span></div><div class="bar-track"><div class="bar-fill" style="width:21%;background:#2dd4bf"></div></div></div>
+        <div class="month-bar-wrap"><div class="month-bar-hdr"><span class="month-bar-name">ROE</span><span class="month-bar-pct" style="color:#ff7b3d">15%</span></div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#ff7b3d"></div></div><div style="margin-top:4px;font-size:11px;color:#2dd4bf;font-family:'IBM Plex Mono',monospace">⚡ EOM + integration</div></div>
       </div>
+
     </div>
-    <div class="callout"><strong>Key finding:</strong> The 55/30/15 split holds within 1–2 points across every month. This isn't noise — it's structural. The categories don't shift because the underlying causes (automation gaps, training gaps, routing logic gaps) are unchanged month over month.</div>
+    <div class="callout"><strong>Key finding:</strong> The split is structurally stable across all 6 months. Admin and General Q are unchanged month over month — the underlying causes (automation gaps, training gaps, routing logic gaps) haven't been addressed. Merge volume is consistent at ~20% and spikes further post integration events.</div>
   </div>
 </div>
 
 <!-- SUB-TYPES -->
 <div id="subtypes" class="panel">
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;align-items:start">
-    <div class="card">
-      <div class="card-hdr">
-        <span class="card-title" style="color:#2dd4bf">Merge Requests</span>
-        <span class="badge" style="background:rgba(45,212,191,0.12);color:#2dd4bf">~20% of total</span>
-      </div>
-      <div class="sclist">
-        <div class="scitem"><span class="scname">Duplicate account merge (prospect + customer, integration dupes)</span><span class="sctag" style="color:#2dd4bf">Very High</span></div>
-        <div class="scitem"><span class="scname">Contact / lead merge (same person, multiple records)</span><span class="sctag" style="color:#2dd4bf">High</span></div>
-        <div class="scitem"><span class="scname">Lead → contact conversion merge</span><span class="sctag" style="color:#5de8d8">Medium</span></div>
-        <div class="scitem"><span class="scname">Account consolidation post firm split or acquisition</span><span class="sctag" style="color:#5de8d8">Medium</span></div>
-        <div class="scitem"><span class="scname">Bot-confirmed form submissions (G-Sheet workflow)</span><span class="sctag" style="color:#99f0e8">Low–Med</span></div>
-      </div>
-      <div style="margin-top:14px;padding:10px 12px;background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.2);border-radius:6px;font-size:12px;color:#7a8499;line-height:1.5">
-        Actioned via G-Sheet workflow — not handled inline in channel. Volume spikes post integration events.
-      </div>
-    </div>
+
     <div class="card">
       <div class="card-hdr">
         <span class="card-title" style="color:#7aaff9">Admin / Systems Fix</span>
@@ -312,6 +304,7 @@ td.pat{font-size:13px;color:#a0aab8}
         <div class="scitem"><span class="scname">Manual payments / billing switch</span><span class="sctag" style="color:#a3c4fb">Low</span></div>
       </div>
     </div>
+
     <div class="card">
       <div class="card-hdr">
         <span class="card-title">General Questions</span>
@@ -328,6 +321,24 @@ td.pat{font-size:13px;color:#a0aab8}
         <div class="scitem"><span class="scname">Hot lead / MQL logic questions</span><span class="sctag" style="color:#4a5568">Low</span></div>
       </div>
     </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title" style="color:#2dd4bf">Merge Requests</span>
+        <span class="badge" style="background:rgba(45,212,191,0.12);color:#2dd4bf">~20% of total</span>
+      </div>
+      <div class="sclist">
+        <div class="scitem"><span class="scname">Duplicate account merge (prospect + customer, integration dupes)</span><span class="sctag" style="color:#2dd4bf">Very High</span></div>
+        <div class="scitem"><span class="scname">Contact / lead merge (same person, multiple records)</span><span class="sctag" style="color:#2dd4bf">High</span></div>
+        <div class="scitem"><span class="scname">Lead → contact conversion merge</span><span class="sctag" style="color:#5de8d8">Medium</span></div>
+        <div class="scitem"><span class="scname">Account consolidation post firm split or acquisition</span><span class="sctag" style="color:#5de8d8">Medium</span></div>
+        <div class="scitem"><span class="scname">Bot-confirmed form submissions (G-Sheet workflow)</span><span class="sctag" style="color:#99f0e8">Low–Med</span></div>
+      </div>
+      <div style="margin-top:14px;padding:10px 12px;background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.2);border-radius:6px;font-size:12px;color:#7a8499;line-height:1.5">
+        Actioned via G-Sheet workflow — not handled inline in channel. Volume spikes post integration events.
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-hdr">
         <span class="card-title">ROE / Credit Dispute</span>
@@ -343,6 +354,7 @@ td.pat{font-size:13px;color:#a0aab8}
         <div class="scitem"><span class="scname">Strat AQL routed to Velocity — routing dispute</span><span class="sctag" style="color:#4a5568">Low</span></div>
       </div>
     </div>
+
   </div>
 </div>
 
